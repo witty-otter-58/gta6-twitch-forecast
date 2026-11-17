@@ -159,11 +159,13 @@ for (const file of inputs) {
   const med = elevated ? ELEVATED_MED : FLAT_MED;
   const sig = elevated ? ELEVATED_SIG : FLAT_SIG;
 
-  const hours = c.forecast.map(({ hour }) => {
-    const i = HOURS.indexOf(hour);
-    if (i < 0) throw new Error(`${file} asks to forecast hour ${hour}, not 2..24`);
-    return { hour, q: hourQuantiles(p1, i, med, sig) };
-  });
+  const hours = c.forecast
+    .map(({ hour }) => {
+      const i = HOURS.indexOf(hour);
+      if (i < 0) throw new Error(`${file} asks to forecast hour ${hour}, not 2..24`);
+      return { hour, q: hourQuantiles(p1, i, med, sig) };
+    })
+    .sort((a, b) => a.hour - b.hour);
   if (hours.length !== HOURS.length) throw new Error(`${file} forecasts ${hours.length} hours, not 23`);
   writeFileSync(join(OUTPUT_DIR, `${id}.out`), `${JSON.stringify({ hours })}\n`);
 }
